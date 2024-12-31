@@ -1,0 +1,8 @@
+@model VSExample.Web.ViewModels.Products.ProductDetailsViewModel
+
+<h1>@Model.Name</h1>
+<p><strong>Price:</strong> @Model.Price</p>
+<p><strong>Description:</strong> @Model.Description</p>
+<p><strong>Created</strong> @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</p>
+
+@Html.ActionLink("Back to Product List", "Index", "Products")
