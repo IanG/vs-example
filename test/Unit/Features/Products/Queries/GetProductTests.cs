@@ -22,7 +22,7 @@ public class GetProductTests
     {
         int productId = 1;
         
-        GetProduct.Query query = new GetProduct.Query(productId);
+        GetProduct.Query query = new(productId);
 
         Result<ProductDto?> result = await _handler.Handle(query, CancellationToken.None);
         
@@ -44,7 +44,7 @@ public class GetProductTests
     {
         int productId = 2;
         
-        GetProduct.Query query = new GetProduct.Query(productId);
+        GetProduct.Query query = new(productId);
         
         Result<ProductDto?> result = await _handler.Handle(query, CancellationToken.None);
         
@@ -61,7 +61,7 @@ public class GetProductTests
             .UseInMemoryDatabase("Products-" + Guid.NewGuid())
             .Options;
 
-        ApplicationDbContext dbContext = new ApplicationDbContext(options);
+        ApplicationDbContext dbContext = new(options);
 
         dbContext.Products.Add(new Product()
         {

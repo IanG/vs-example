@@ -34,7 +34,7 @@ Serves as the infrastructure layer of the application.  This houses:
 - **Persistence** - how our entities are created, retrieved and stored
 - **Logging** - how our application logs messages.
 
-plus any other technical capabilities we may need (caching, clients to external apis, telemetry).  This project only depends upon our Domain layer.
+plus any other technical capabilities we may need (caching, clients to external apis, telemetry).  This project only depends upon our **Domain** layer.
 
 This project makes use of:
 
@@ -42,7 +42,7 @@ This project makes use of:
 - [Serilog](https://serilog.net/) for application logging.
 
 ### Web
-A .NET MVC application that depends upon the Application and Infrastructure projects.
+A .NET MVC application that depends upon the **Application** and **Infrastructure** projects.
 
 ## test
 

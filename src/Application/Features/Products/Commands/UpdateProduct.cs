@@ -24,7 +24,7 @@ public class UpdateProduct
                 .GreaterThan(0).WithMessage("Price must be greater than zero.");
 
             RuleFor(x => x.Description)
-                .Length(10, 500).WithMessage("Product description must be between 10 and 500 characters.");
+                .Length(1, 500).WithMessage("Product description must be between 10 and 500 characters.");
         }
     }
 
@@ -43,12 +43,12 @@ public class UpdateProduct
         {
             ValidationResult? validationResult = await _validator.ValidateAsync(command, cancellationToken);
 
-            if (!validationResult.IsValid) return false;
+            if (!validationResult.IsValid) return Result.Fail("Update failed.");
             
             Product? product = await _dbContext.Products
                 .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
 
-            if (product is null) return false;
+            if (product is null) return Result.Fail("Product not found.");
             
             product.Name = command.Name;
             product.Description = command.Description!;

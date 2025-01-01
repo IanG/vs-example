@@ -13,8 +13,8 @@ public class GetProductsTests
     [Fact(DisplayName = "When No Products exist an empty list will be returned")]
     public async Task WhenNoProductsExistAnEmptyListWillBeReturned()
     {
-        GetProducts.Handler handler = new GetProducts.Handler(GetEmptyApplicationDbContext());
-        GetProducts.Query query = new GetProducts.Query(PageNumber: 1, PageSize: 10);
+        GetProducts.Handler handler = new(GetEmptyApplicationDbContext());
+        GetProducts.Query query = new(PageNumber: 1, PageSize: 10);
         
         Result<ProductQueryResult> result = await handler.Handle(query, CancellationToken.None);
         
@@ -33,8 +33,8 @@ public class GetProductsTests
             new() { Id = 1, Name = "Name", Price = 33.4m, Description = "Description" }
         ];
         
-        GetProducts.Handler handler = new GetProducts.Handler(GetPopulatedApplicationDbContext());
-        GetProducts.Query query = new GetProducts.Query(PageNumber: 1, PageSize: 10);
+        GetProducts.Handler handler = new(GetPopulatedApplicationDbContext());
+        GetProducts.Query query = new(PageNumber: 1, PageSize: 10);
         
         Result<ProductQueryResult> result = await handler.Handle(query, CancellationToken.None);
         
@@ -52,7 +52,7 @@ public class GetProductsTests
             .UseInMemoryDatabase("Products-" + Guid.NewGuid())
             .Options;
 
-        ApplicationDbContext dbContext = new ApplicationDbContext(options);
+        ApplicationDbContext dbContext = new(options);
         
         return dbContext;
     }
@@ -63,7 +63,7 @@ public class GetProductsTests
             .UseInMemoryDatabase("Products-" + Guid.NewGuid())
             .Options;
 
-        ApplicationDbContext dbContext = new ApplicationDbContext(options);
+        ApplicationDbContext dbContext = new(options);
         
         dbContext.Products.AddRange(
             new Product { Id = 1, Name = "Name", Price = 33.4m, Description = "Description" }

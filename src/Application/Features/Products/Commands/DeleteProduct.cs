@@ -28,15 +28,13 @@ public class DeleteProduct
             Product? product = await _dbContext.Products
              .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
             
-            if (product is null) return false;
+            if (product is null) return Result.Fail<bool>($"Product {command.Id} not found");
 
             _dbContext.Products.Remove(product);
             await _dbContext.SaveChangesAsync(cancellationToken);
             
             await _mediator.Publish(new ProductDeletedEvent(product.Id, product.Name, DateTime.Now), cancellationToken);
-
-            //return true;
-
+            
             return Result.Ok(true);
         }
     }

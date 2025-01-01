@@ -27,7 +27,7 @@ public class GetProduct
 
             if (product is not null)
             {
-                ProductDto productDto = new ProductDto
+                ProductDto productDto = new()
                 {
                     Id = product.Id,
                     Name = product.Name,
