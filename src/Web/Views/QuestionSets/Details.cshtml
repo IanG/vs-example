@@ -1,0 +1,265 @@
+@using VsExample.Domain.Entities.Questions
+@model VSExample.Web.ViewModels.QuestionSets.QuestionSetDetailsViewModel
+
+@functions 
+{
+    int GetTotalQuestionCount() => Model.QuestionSet.QuestionGroups.Sum(questionGroup => questionGroup.Questions.Count);
+    int GetQuestionGroupCount() => Model.QuestionSet.QuestionGroups.Count;
+    int GetQuestionsInGroup(int id) => Model.QuestionSet.QuestionGroups.FirstOrDefault(questionGroup => questionGroup.Id == id)?.Questions.Count ?? 0;
+}
+
+
+<div class="container">
+    <div id="questionset-@Model.QuestionSet.Id" class="question-set">
+        <h1>@Model.QuestionSet.Name</h1>
+        <p id="form-description" class="form-label">@Model.QuestionSet.Description. Please complete the following @GetTotalQuestionCount() questions arranged into @GetQuestionGroupCount() groups.</p>
+
+        <form asp-action="SubmitAnswers" id="form" enctype="multipart/form-data" method="post" class="needs-validation" aria-describedby="form-description" novalidate>
+            <input type="hidden" name="QuestionSetId" value="@Model.QuestionSet.Id"/>
+            <input type="hidden" name="QuestionSetVersion" value="@Model.QuestionSet.Version"/>
+            @foreach (var group in Model.QuestionSet.QuestionGroups.OrderBy(g => g.Order))
+            { 
+                <div id="question-group@group-@group.Id" class="question-group">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="flex-grow-1 me-3">
+                                <h5 class="mb-0">@group.Name</h5>
+                                <small class="text-muted">@group.Description</small>
+                                <div class="question-group-progress" style="background-color: white" role="progressbar" aria-label="Example with label" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar bg-success" style="width: 0%">0%</div>
+                                </div>
+                            </div>
+                            <div class="question-group-status">0 of 0</div>
+                        </div>
+                        <div class="card-body">
+                            @foreach (var question in group.Questions.OrderBy(q => q.Order))
+                            {
+                                <div id="question-group-@group.Id-question-@question.Id" class="question">
+                                    <div class="mb-3">
+                                        <label for="question-@question.Id" class="form-label"><strong>@question.Id. @question.Prompt</strong></label>
+                                        <div id="question-@question.Id-help" class="form-text">@question.HelpText</div>
+                                        @switch (question)
+                                        {
+                                            case StringQuestion stringQuestion:
+                                                <input type="text"
+                                                       class="form-control"
+                                                       @* @(stringQuestion.Required ? "is-invalid" : "")" *@
+                                                       id="question-@stringQuestion.Id"
+                                                       name="Answers[@stringQuestion.Id]"
+
+                                                       aria-labelledby="question-@stringQuestion.Id"
+                                                       aria-required="@stringQuestion.Required"
+                                                       aria-describedby="question-@stringQuestion.Id-help"
+
+                                                       minlength="@stringQuestion.MinLength"
+                                                       maxlength="@stringQuestion.MaxLength"
+                                                       required="@stringQuestion.Required"
+                                                       placeholder="@stringQuestion.Placeholder"
+                                                       @* pattern="@stringQuestion.Pattern" *@
+                                                       @* oninput="removeInvalidClass(this)" *@/>
+
+                                                break;
+                                            case IntegerQuestion integerQuestion:
+                                                <input type="number"
+                                                       class="form-control"
+                                                       @* @(integerQuestion.Required ? "is-invalid" : "")" *@
+                                                       id="question-@integerQuestion.Id"
+                                                       name="Answers[@integerQuestion.Id]"
+                                                       min="@integerQuestion.MinValue"
+                                                       max="@integerQuestion.MaxValue"
+                                                       required="@integerQuestion.Required"
+                                                       placeholder="@integerQuestion.Placeholder"
+                                                       @* oninput="removeInvalidClass(this)" *@/>
+
+                                                break;
+
+                                            case RatingQuestion ratingQuestion:
+                                                @foreach (var option in ratingQuestion.Labels)
+                                                {
+                                                    <div class="form-check">
+                                                        <input type="radio"
+                                                               class="form-check-input"
+                                                               id="question-@ratingQuestion.Id-option-@option.Key"
+                                                               name="Answers[@ratingQuestion.Id]"
+                                                               value="@option.Value"
+                                                               aria-description="@option.Key"
+                                                               required="@ratingQuestion.Required"
+                                                               @* onchange="removeInvalidClass(this)" *@/>
+                                                        <label class="form-check-label" for="question-@question.Id-option-@option.Value">
+                                                            @option.Value
+                                                        </label>
+                                                    </div>
+                                                }
+
+                                                break;
+
+                                            case MultiChoiceQuestion multiChoiceQuestion:
+                                                @foreach (var option in multiChoiceQuestion.Options)
+                                                {
+                                                    <div class="form-check">
+                                                        <input type="checkbox"
+                                                               class="form-check-input"
+                                                               id="question-option-@option.Id"
+                                                               name="Answers[@multiChoiceQuestion.Id]"
+                                                               value="@option.Value"
+                                                               aria-description="@option.Label"
+                                                               @* onchange="removeInvalidClass(this)" *@/>
+                                                        <label class="form-check-label" for="question-option-@option.Id">
+                                                            @option.Label
+                                                        </label>
+                                                    </div>
+                                                }
+
+                                                break;
+
+                                            case DateQuestion dateQuestion:
+                                                <input type="date"
+                                                       class="form-control"
+                                                       @* @(dateQuestion.Required ? "is-invalid" : "")" *@
+                                                       id="question-@dateQuestion.Id"
+                                                       name="Answers[@dateQuestion.Id]"
+                                                       required="@dateQuestion.Required"
+                                                       @* oninput="removeInvalidClass(this)" *@/>
+                                                break;
+
+                                            case FileUploadQuestion fileUploadQuestion:
+                                                <input type="file"
+                                                       class="form-control"
+                                                       @* @(fileUploadQuestion.Required ? "is-invalid" : "")" *@
+                                                       id="question-@fileUploadQuestion.Id"
+                                                       name="Answers[@fileUploadQuestion.Id]"
+                                                       required="@fileUploadQuestion.Required"
+                                                       accept="@string.Join(",", fileUploadQuestion.AllowedFileTypes)"
+                                                       @* oninput="removeInvalidClass(this)" *@>
+                                                break;
+
+                                            default:
+                                                <p>@question.GetType().Name input Not implemented</p>
+                                                break;
+                                        }
+                                        <div class="invalid-feedback">@question.InvalidDataMessage</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <p id="form-submit-instructions">Submitting will send your information for processing.</p>
+            <p id="form-reset-instructions">Press the reset button to clear the form and start again.</p>
+            <button type="submit"
+                    class="btn btn-primary"
+                    aria-label="Submit the form"
+                    aria-describedby="form-submit-instructions">
+                Submit
+            </button>
+            <button type="reset"
+                    class="btn btn-secondary"
+                    aria-label="Reset the form"
+                    aria-describedby="form-reset-instructions">
+                Reset
+            </button>
+        </form>
+    </div>
+
+    <br/>
+
+    @Html.ActionLink("Back to question set List", "Index", "QuestionSets")
+</div>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const form = document.getElementById("form");
+        const formInputs = form.querySelectorAll("input.form-control");
+        
+        formInputs.forEach(input => {
+            
+            // Make sure all our form inputs track their valid/invalid state
+            input.addEventListener("blur", function () {
+                if (input.checkValidity()) {
+                    input.classList.remove("is-invalid");
+                    input.classList.add("is-valid");
+                } else {
+                    input.classList.remove("is-valid");
+                    input.classList.add("is-invalid");
+                }
+            });
+            
+            // When an input loses focus check the state of the question group
+            input.addEventListener("blur", function (event) {
+                // Find this input's question group
+                const questionGroup = input.closest(".question-group");
+                
+                // Find all the inputs in the group it belongs to
+                const inputs = questionGroup.querySelectorAll(".form-control");
+                
+                // Calculate the valid/invalid counts
+                const totalCount = inputs.length;
+                const validCount = Array.from(inputs).filter(inp => inp.classList.contains("is-valid")).length;
+                const invalidCount = Array.from(inputs).filter(inp => inp.classList.contains("is-invalid")).length;
+                
+                // Update the n of n status for the group
+                const questionGroupStatus = questionGroup.querySelector(".question-group-status");
+                if (questionGroupStatus) { 
+                    questionGroupStatus.innerText = `${validCount} of ${totalCount}`;
+                }
+
+                // Update the progress bar for the group
+                const progressBarContainer = questionGroup.querySelector(".question-group-progress");
+                if (progressBarContainer) {
+                    const progressPercentage = (validCount / totalCount) * 100;
+                    progressBarContainer.setAttribute("aria-valuenow", progressPercentage.toFixed(0));
+                    
+                    const innerProgressBar = progressBarContainer.querySelector(".progress-bar");
+                    if (innerProgressBar) {
+                        innerProgressBar.style.width = `${progressPercentage}%`;
+                        innerProgressBar.innerText = `${progressPercentage.toFixed(0)}%`;
+                    }
+                }
+                
+            })
+        });
+
+        // Form submission
+        form.addEventListener("submit", function (event) {
+            let isFormValid = true;
+
+            // Validate each input
+            formInputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    isFormValid = false;
+                    input.classList.add("is-invalid");
+                    input.classList.remove("is-valid");
+                } else {
+                    input.classList.remove("is-invalid");
+                    input.classList.add("is-valid");
+                }
+            });
+
+            // Invalid inputs prevent form submission and scroll to the first invalid input
+            if (!isFormValid) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const firstInvalidInput = form.querySelector(".is-invalid");
+                if (firstInvalidInput) {
+                    firstInvalidInput.focus();
+                    firstInvalidInput.scrollIntoView({ behavior: "smooth" });
+                }
+            }
+        });
+
+        // Form reset
+        form.addEventListener("reset", function () {
+            // Remove validation classes on reset
+            formInputs.forEach(input => {
+                input.classList.remove("is-valid", "is-invalid");
+            });
+        });
+    });
+
+</script>

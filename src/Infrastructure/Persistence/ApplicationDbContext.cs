@@ -1,12 +1,19 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using VsExample.Domain.Entities;
+using VsExample.Domain.Entities.Questionaire;
 
 namespace VsExample.Infrastructure.Persistence;
 
 public class ApplicationDbContext : DbContext
 {
     public DbSet<Product> Products { get; set; }
+    
+    public DbSet<Questionnaire> Questionnaires { get; set; }
+    public DbSet<QuestionGroup> QuestionGroups { get; set; }
+    public DbSet<Question> Questions { get; set; }
+    public DbSet<QuestionOption> QuestionOptions { get; set; }
+    public DbSet<AnswerBase> Answers { get; set; }
     
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     

@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.AddLogging(builder.Configuration);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 builder.Services.AddApplicationServices();
 builder.Services.AddApplicationPersistence(builder.Environment);
