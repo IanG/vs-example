@@ -43,34 +43,39 @@
                                             case StringQuestion stringQuestion:
                                                 <input type="text"
                                                        class="form-control"
-                                                       @* @(stringQuestion.Required ? "is-invalid" : "")" *@
                                                        id="question-@stringQuestion.Id"
-                                                       name="Answers[@stringQuestion.Id]"
-
+                                                       name="@stringQuestion.CapturesField"
                                                        aria-labelledby="question-@stringQuestion.Id"
                                                        aria-required="@stringQuestion.Required"
                                                        aria-describedby="question-@stringQuestion.Id-help"
-
                                                        minlength="@stringQuestion.MinLength"
                                                        maxlength="@stringQuestion.MaxLength"
                                                        required="@stringQuestion.Required"
                                                        placeholder="@stringQuestion.Placeholder"
-                                                       @* pattern="@stringQuestion.Pattern" *@
-                                                       @* oninput="removeInvalidClass(this)" *@/>
+                                                       data-captures-field="@stringQuestion.CapturesField"
+                                                       @if (!string.IsNullOrEmpty(stringQuestion.VisbilityRule))
+                                                       {
+                                                           @Html.Raw($"data-visibility-rule=\"{stringQuestion.VisbilityRule}\"")
+                                                       }
+                                                       />
 
                                                 break;
                                             case IntegerQuestion integerQuestion:
                                                 <input type="number"
                                                        class="form-control"
-                                                       @* @(integerQuestion.Required ? "is-invalid" : "")" *@
                                                        id="question-@integerQuestion.Id"
-                                                       name="Answers[@integerQuestion.Id]"
+                                                       name="@integerQuestion.CapturesField"
                                                        min="@integerQuestion.MinValue"
                                                        max="@integerQuestion.MaxValue"
                                                        required="@integerQuestion.Required"
                                                        placeholder="@integerQuestion.Placeholder"
-                                                       @* oninput="removeInvalidClass(this)" *@/>
-
+                                                       data-captures-field="@integerQuestion.CapturesField"
+                                                       @if (!string.IsNullOrEmpty(integerQuestion.VisbilityRule))
+                                                       {
+                                                           @($"data-visibility-rule=\"{integerQuestion.VisbilityRule}\"")
+                                                       }
+                                                       />
+                                                
                                                 break;
 
                                             case RatingQuestion ratingQuestion:
@@ -80,11 +85,16 @@
                                                         <input type="radio"
                                                                class="form-check-input"
                                                                id="question-@ratingQuestion.Id-option-@option.Key"
-                                                               name="Answers[@ratingQuestion.Id]"
+                                                               name="@ratingQuestion.CapturesField"
                                                                value="@option.Value"
                                                                aria-description="@option.Key"
                                                                required="@ratingQuestion.Required"
-                                                               @* onchange="removeInvalidClass(this)" *@/>
+                                                               data-captures-field="@ratingQuestion.CapturesField"
+                                                               @if (!string.IsNullOrEmpty(ratingQuestion.VisbilityRule))
+                                                               {
+                                                                   @($"data-visibility-rule=\"{ratingQuestion.VisbilityRule}\"")
+                                                               }
+                                                               />
                                                         <label class="form-check-label" for="question-@question.Id-option-@option.Value">
                                                             @option.Value
                                                         </label>
@@ -100,10 +110,15 @@
                                                         <input type="checkbox"
                                                                class="form-check-input"
                                                                id="question-option-@option.Id"
-                                                               name="Answers[@multiChoiceQuestion.Id]"
+                                                               name="@multiChoiceQuestion.CapturesField"
                                                                value="@option.Value"
                                                                aria-description="@option.Label"
-                                                               @* onchange="removeInvalidClass(this)" *@/>
+                                                               data-captures-field="@multiChoiceQuestion.CapturesField"
+                                                               @if (!string.IsNullOrEmpty(multiChoiceQuestion.VisbilityRule))
+                                                               {
+                                                                   @($"data-visibility-rule=\"{multiChoiceQuestion.VisbilityRule}\"")
+                                                               }
+                                                               />
                                                         <label class="form-check-label" for="question-option-@option.Id">
                                                             @option.Label
                                                         </label>
@@ -115,22 +130,30 @@
                                             case DateQuestion dateQuestion:
                                                 <input type="date"
                                                        class="form-control"
-                                                       @* @(dateQuestion.Required ? "is-invalid" : "")" *@
                                                        id="question-@dateQuestion.Id"
-                                                       name="Answers[@dateQuestion.Id]"
+                                                       name="@dateQuestion.CapturesField"
                                                        required="@dateQuestion.Required"
-                                                       @* oninput="removeInvalidClass(this)" *@/>
+                                                       data-captures-field="@dateQuestion.CapturesField"
+                                                       @if (!string.IsNullOrEmpty(dateQuestion.VisbilityRule))
+                                                       {
+                                                           @($"data-visibility-rule=\"{dateQuestion.VisbilityRule}\"")
+                                                       }
+                                                       />
                                                 break;
 
                                             case FileUploadQuestion fileUploadQuestion:
                                                 <input type="file"
                                                        class="form-control"
-                                                       @* @(fileUploadQuestion.Required ? "is-invalid" : "")" *@
                                                        id="question-@fileUploadQuestion.Id"
-                                                       name="Answers[@fileUploadQuestion.Id]"
+                                                       name="@fileUploadQuestion.CapturesField"
                                                        required="@fileUploadQuestion.Required"
                                                        accept="@string.Join(",", fileUploadQuestion.AllowedFileTypes)"
-                                                       @* oninput="removeInvalidClass(this)" *@>
+                                                       data-captures-field="@fileUploadQuestion.CapturesField"
+                                                       @if (!string.IsNullOrEmpty(fileUploadQuestion.VisbilityRule))
+                                                       {
+                                                           @($"data-visibility-rule=\"{fileUploadQuestion.VisbilityRule}\"")
+                                                       }
+                                                       >
                                                 break;
 
                                             default:
@@ -172,7 +195,7 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-
+        
         const form = document.getElementById("form");
         const formInputs = form.querySelectorAll("input.form-control");
         
@@ -193,18 +216,17 @@
             input.addEventListener("blur", function (event) {
                 // Find this input's question group
                 const questionGroup = input.closest(".question-group");
-                
+
                 // Find all the inputs in the group it belongs to
                 const inputs = questionGroup.querySelectorAll(".form-control");
-                
+
                 // Calculate the valid/invalid counts
                 const totalCount = inputs.length;
                 const validCount = Array.from(inputs).filter(inp => inp.classList.contains("is-valid")).length;
-                const invalidCount = Array.from(inputs).filter(inp => inp.classList.contains("is-invalid")).length;
-                
+
                 // Update the n of n status for the group
                 const questionGroupStatus = questionGroup.querySelector(".question-group-status");
-                if (questionGroupStatus) { 
+                if (questionGroupStatus) {
                     questionGroupStatus.innerText = `${validCount} of ${totalCount}`;
                 }
 
@@ -213,19 +235,31 @@
                 if (progressBarContainer) {
                     const progressPercentage = (validCount / totalCount) * 100;
                     progressBarContainer.setAttribute("aria-valuenow", progressPercentage.toFixed(0));
-                    
+
                     const innerProgressBar = progressBarContainer.querySelector(".progress-bar");
                     if (innerProgressBar) {
                         innerProgressBar.style.width = `${progressPercentage}%`;
                         innerProgressBar.innerText = `${progressPercentage.toFixed(0)}%`;
                     }
                 }
-                
+
             })
+            
+            if (form) {
+                form.addEventListener("input", checkQuestionVisibility);
+                form.addEventListener("change", checkQuestionVisibility);
+            }
+
+            // Initial visibility evaluation on page load
+            checkQuestionVisibility();
         });
 
         // Form submission
         form.addEventListener("submit", function (event) {
+            const formContext = getFormContext();
+
+            console.log("Data in form", formContext);
+
             let isFormValid = true;
 
             // Validate each input
@@ -238,13 +272,17 @@
                     input.classList.remove("is-invalid");
                     input.classList.add("is-valid");
                 }
+
+                const formContext = getFormContext();
+                updateQuestionVisibility(formContext);
             });
 
-            // Invalid inputs prevent form submission and scroll to the first invalid input
+            // Invalid inputs prevent form submission
             if (!isFormValid) {
                 event.preventDefault();
                 event.stopPropagation();
 
+                // Scroll the first invalid input into view
                 const firstInvalidInput = form.querySelector(".is-invalid");
                 if (firstInvalidInput) {
                     firstInvalidInput.focus();
@@ -255,11 +293,107 @@
 
         // Form reset
         form.addEventListener("reset", function () {
-            // Remove validation classes on reset
+            // Re-evaluate visible questions
+            checkQuestionVisibility();
+            
+            // Remove validation classes from inputs
             formInputs.forEach(input => {
+                input.value = "";
                 input.classList.remove("is-valid", "is-invalid");
             });
+
         });
+
+        // Builds the context object from form inputs for rule evaluation
+        function getFormContext()
+        {
+            const form = document.getElementById("form");
+
+            const formData = new FormData(form);
+            console.log("FormData", formData);
+
+            const formContext = {};
+
+            Array.from(form).forEach((element) => {
+               if (element.hasAttribute("data-captures-field")) {
+                   const capturedFieldName = element.dataset.capturesField;
+
+                   switch (element.type) {
+                       case "checkbox":
+                           if (element.checked) {
+                               if (!formContext[capturedFieldName]) {
+                                   formContext[capturedFieldName] = [];
+                               }
+                               formContext[capturedFieldName].push(element.value);
+                           }
+                           break;
+
+                       case "radio":
+                           if (element.checked)
+                               formContext[capturedFieldName] = element.value;
+                           break;
+
+                       case "file":
+                           if (element.files && element.files.length > 0)
+                               formContext[capturedFieldName] = element.files[0].name;
+                           break;
+
+                       case "number":
+                           formContext[capturedFieldName] = element.value;
+                           // TODO: Probably should be a number with ? Number(element.value) : null;
+                           break;
+
+                       default:
+                           formContext[capturedFieldName] = element.value;
+                           break;
+                   }
+               }
+            });
+
+            console.log("Context", formContext);
+            return formContext;
+        }
+
+        // Evaulates a visibility rule from the forms contextual data
+        function evaluateVisibilityRule(rule, context) {
+            try {
+                // Use Function constructor to evaluate the rule in the context
+                const evaluator = new Function(
+                    ...Object.keys(context),
+                    `return ${rule};`
+                );
+                return evaluator(...Object.values(context));
+            } catch (e) {
+                console.error("Error evaluating rule:", rule, e);
+                return false;
+            }
+        }
+
+        function updateQuestionVisibility(formContext) {
+            // Find all questions with a visibility rule
+            const questions = document.querySelectorAll("[data-visibility-rule]");
+
+            // Check every question with a rule to see if its visible/hidden
+            questions.forEach((question) => {
+                const rule = question.dataset.visibilityRule;
+                const isVisible = evaluateVisibilityRule(rule, formContext);
+
+                // Find the parent question for this input
+                const questionContainer = question.closest(".question");
+
+                // Change the questions visibility based upon the rule evaluation
+                if (isVisible) {
+                    questionContainer.style.removeProperty("display")
+                } else {
+                    questionContainer.style.display = "none";
+                }
+            });
+        }
+
+        function checkQuestionVisibility(event) {
+            const formContext = getFormContext();
+            updateQuestionVisibility(formContext);
+        }
     });
 
 </script>

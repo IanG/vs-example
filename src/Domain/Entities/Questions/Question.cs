@@ -36,125 +36,134 @@ public abstract class QuestionBase
     [JsonPropertyName("invalidDataMessage")]
     [JsonPropertyOrder(6)]
     public string? InvalidDataMessage { get; set; }
+    
+    [JsonPropertyName("capturesField")]
+    [JsonPropertyOrder(7)]
+    public string? CapturesField { get; set; }
+    
+    [JsonPropertyName("visbilityRule")]
+    [JsonPropertyOrder(8)]
+    
+    public string? VisbilityRule { get; set; }
 }
 
 public class StringQuestion : QuestionBase
 {
     [JsonPropertyName("placeholder")]
-    [JsonPropertyOrder(7)]
+    [JsonPropertyOrder(9)]
     public string? Placeholder { get; set; }
     
     [JsonPropertyName("minLength")]
-    [JsonPropertyOrder(8)]
+    [JsonPropertyOrder(10)]
     public required int MinLength { get; set; }
     
     [JsonPropertyName("maxLength")]
-    [JsonPropertyOrder(9)]
+    [JsonPropertyOrder(11)]
     public required int MaxLength { get; set; }
     
     [JsonPropertyName("defaultValue")]
-    [JsonPropertyOrder(10)]
+    [JsonPropertyOrder(12)]
     public string? DefaultValue { get; set; } = string.Empty;
     
     [JsonPropertyName("pattern")]
-    [JsonPropertyOrder(11)]
+    [JsonPropertyOrder(13)]
     public string? Pattern { get; set; }
 }
 
 public class TextQuestion : QuestionBase
 {
     [JsonPropertyName("maxLength")]
-    [JsonPropertyOrder(7)]
+    [JsonPropertyOrder(9)]
     public required int MaxLength { get; set; }
 }
 
 public class IntegerQuestion : QuestionBase
 {
     [JsonPropertyName("placeholder")]
-    [JsonPropertyOrder(7)]
+    [JsonPropertyOrder(10)]
     public string? Placeholder { get; set; }
     
     [JsonPropertyName("minValue")]
-    [JsonPropertyOrder(8)]
+    [JsonPropertyOrder(11)]
     public required int MinValue { get; set; }
     
     [JsonPropertyName("maxValue")]
-    [JsonPropertyOrder(9)]
+    [JsonPropertyOrder(12)]
     public required int MaxValue { get; set; }
     
     [JsonPropertyName("defaultValue")]
-    [JsonPropertyOrder(10)]
+    [JsonPropertyOrder(13)]
     public int? DefaultValue { get; set; }
 }
 
 public class DateQuestion : QuestionBase
 {
     [JsonPropertyName("minDate")]
-    [JsonPropertyOrder(7)]
+    [JsonPropertyOrder(9)]
     public DateTime? MinDate { get; set; }
     
     [JsonPropertyName("maxDate")]
-    [JsonPropertyOrder(8)]
+    [JsonPropertyOrder(10)]
     public DateTime? MaxDate { get; set; }
     
     [JsonPropertyName("mustBeInTheFuture")]
-    [JsonPropertyOrder(9)]
+    [JsonPropertyOrder(11)]
     public bool? MustBeInFuture { get; set; }
     
     [JsonPropertyName("mustBeInThePast")]
-    [JsonPropertyOrder(10)]
+    [JsonPropertyOrder(12)]
     public bool? MustBeInPast { get; set; }
 }
 
 public class BooleanQuestion : QuestionBase
 {
     [JsonPropertyName("defaultValue")]
-    [JsonPropertyOrder(7)]
+    [JsonPropertyOrder(9)]
     public bool? DefaultValue { get; set; }
 }
 
 public class MultiChoiceQuestion : QuestionBase
 {
     [JsonPropertyName("options")]
-    [JsonPropertyOrder(7)]
+    [JsonPropertyOrder(9)]
     public required List<Option> Options { get; set; } = [];
     
     [JsonPropertyName("allowMultipleSelections")]
-    [JsonPropertyOrder(8)]
+    [JsonPropertyOrder(10)]
     public bool AllowMultipleSelections { get; set; } = false;
 }
 
 public class FileUploadQuestion : QuestionBase
 {
     [JsonPropertyName("allowedFileTypes")]
-    [JsonPropertyOrder(7)]
+    [JsonPropertyOrder(9)]
     public List<string> AllowedFileTypes { get; set; } = [];
 
     [JsonPropertyName("maxFileSizeMb")]
-    [JsonPropertyOrder(8)]
+    [JsonPropertyOrder(10)]
     public int? MaxFileSizeMb { get; set; }
 
     [JsonPropertyName("allowMultiple")]
-    [JsonPropertyOrder(9)]
+    [JsonPropertyOrder(11)]
     public bool AllowMultiple { get; set; }
 }
 
 public class RatingQuestion : QuestionBase
 {
     [JsonPropertyName("minValue")]
-    [JsonPropertyOrder(7)]
+    [JsonPropertyOrder(9)]
     public int MinValue { get; set; }
 
     [JsonPropertyName("maxValue")]
-    [JsonPropertyOrder(8)]
+    [JsonPropertyOrder(10)]
     public int MaxValue { get; set; }
 
     [JsonPropertyName("stepValue")]
-    [JsonPropertyOrder(9)]
+    [JsonPropertyOrder(11)]
     public int StepValue { get; set; } = 1; 
 
     [JsonPropertyName("labels")]
-    [JsonPropertyOrder(10)]
+    [JsonPropertyOrder(12)]
     public Dictionary<int, string>? Labels { get; set; } 
 }
 
