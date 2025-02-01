@@ -17,6 +17,9 @@
         <form asp-action="SubmitAnswers" id="form" enctype="multipart/form-data" method="post" class="needs-validation" aria-describedby="form-description" novalidate>
             <input type="hidden" name="QuestionSetId" value="@Model.QuestionSet.Id"/>
             <input type="hidden" name="QuestionSetVersion" value="@Model.QuestionSet.Version"/>
+            
+            @* Output each group *@
+            
             @foreach (var group in Model.QuestionSet.QuestionGroups.OrderBy(g => g.Order))
             { 
                 <div id="question-group@group-@group.Id" class="question-group">
@@ -31,10 +34,19 @@
                             </div>
                             <div class="question-group-status">0 of 0</div>
                         </div>
+                        
                         <div class="card-body">
+
+                            @* Output each question in this group *@
+                            
                             @foreach (var question in group.Questions.OrderBy(q => q.Order))
                             {
-                                <div id="question-group-@group.Id-question-@question.Id" class="question">
+                                <div id="question-group-@group.Id-question-@question.Id" class="question"
+                                     @(string.IsNullOrEmpty(question.VisbilityRule) 
+                                         ? ""
+                                         : @Html.Raw($"data-visibility-rule=\"{question.VisbilityRule}\""))
+                                     >
+                                     
                                     <div class="mb-3">
                                         <label for="question-@question.Id" class="form-label"><strong>@question.Id. @question.Prompt</strong></label>
                                         <div id="question-@question.Id-help" class="form-text">@question.HelpText</div>
@@ -53,13 +65,13 @@
                                                        required="@stringQuestion.Required"
                                                        placeholder="@stringQuestion.Placeholder"
                                                        data-captures-field="@stringQuestion.CapturesField"
-                                                       @if (!string.IsNullOrEmpty(stringQuestion.VisbilityRule))
-                                                       {
-                                                           @Html.Raw($"data-visibility-rule=\"{stringQuestion.VisbilityRule}\"")
-                                                       }
-                                                       />
-
+                                                       @* @if (!string.IsNullOrEmpty(stringQuestion.VisbilityRule)) *@
+                                                       @* { *@
+                                                       @*     @Html.Raw($"data-visibility-rule=\"{stringQuestion.VisbilityRule}\"") *@
+                                                       @* }/> *@
+                                                />
                                                 break;
+                                                
                                             case IntegerQuestion integerQuestion:
                                                 <input type="number"
                                                        class="form-control"
@@ -70,12 +82,11 @@
                                                        required="@integerQuestion.Required"
                                                        placeholder="@integerQuestion.Placeholder"
                                                        data-captures-field="@integerQuestion.CapturesField"
-                                                       @if (!string.IsNullOrEmpty(integerQuestion.VisbilityRule))
-                                                       {
-                                                           @($"data-visibility-rule=\"{integerQuestion.VisbilityRule}\"")
-                                                       }
-                                                       />
-                                                
+                                                       @* @if (!string.IsNullOrEmpty(integerQuestion.VisbilityRule)) *@
+                                                       @* { *@
+                                                       @*     @($"data-visibility-rule=\"{integerQuestion.VisbilityRule}\"") *@
+                                                       @* }/> *@
+                                                />
                                                 break;
 
                                             case RatingQuestion ratingQuestion:
@@ -93,8 +104,7 @@
                                                                @if (!string.IsNullOrEmpty(ratingQuestion.VisbilityRule))
                                                                {
                                                                    @($"data-visibility-rule=\"{ratingQuestion.VisbilityRule}\"")
-                                                               }
-                                                               />
+                                                               }/>
                                                         <label class="form-check-label" for="question-@question.Id-option-@option.Value">
                                                             @option.Value
                                                         </label>
@@ -117,8 +127,7 @@
                                                                @if (!string.IsNullOrEmpty(multiChoiceQuestion.VisbilityRule))
                                                                {
                                                                    @($"data-visibility-rule=\"{multiChoiceQuestion.VisbilityRule}\"")
-                                                               }
-                                                               />
+                                                               }/>
                                                         <label class="form-check-label" for="question-option-@option.Id">
                                                             @option.Label
                                                         </label>
@@ -137,8 +146,7 @@
                                                        @if (!string.IsNullOrEmpty(dateQuestion.VisbilityRule))
                                                        {
                                                            @($"data-visibility-rule=\"{dateQuestion.VisbilityRule}\"")
-                                                       }
-                                                       />
+                                                       }/>
                                                 break;
 
                                             case FileUploadQuestion fileUploadQuestion:
@@ -152,8 +160,7 @@
                                                        @if (!string.IsNullOrEmpty(fileUploadQuestion.VisbilityRule))
                                                        {
                                                            @($"data-visibility-rule=\"{fileUploadQuestion.VisbilityRule}\"")
-                                                       }
-                                                       >
+                                                       }>
                                                 break;
 
                                             default:
@@ -369,30 +376,55 @@
             }
         }
 
-        function updateQuestionVisibility(formContext) {
+        function updateQuestionVisibility() {
+
+            const formContext = getFormContext();
+            
             // Find all questions with a visibility rule
-            const questions = document.querySelectorAll("[data-visibility-rule]");
+            const questions = document.querySelectorAll("div.question[data-visibility-rule]");
 
             // Check every question with a rule to see if its visible/hidden
             questions.forEach((question) => {
                 const rule = question.dataset.visibilityRule;
                 const isVisible = evaluateVisibilityRule(rule, formContext);
 
-                // Find the parent question for this input
-                const questionContainer = question.closest(".question");
+                // Update visibility only if it changes
+                const currentDisplay = question.style.display;
+                if (isVisible && currentDisplay === "none") {
+                    question.style.removeProperty("display");
+                } else if (!isVisible && currentDisplay !== "none") {
+                    question.style.display = "none";
+                }
+            });
+        }
+        
+        function updateQuestionGroupVisibility()
+        {
+            // Find all question groups
+            const questionGroups = document.querySelectorAll("div.question-group");
 
-                // Change the questions visibility based upon the rule evaluation
-                if (isVisible) {
-                    questionContainer.style.removeProperty("display")
+            questionGroups.forEach((group) => {
+                // Find all child div elements with the class "question" within this group
+                const questions = group.querySelectorAll("div.question");
+
+                // Check if all child questions are hidden
+                const allHidden = Array.from(questions).every(
+                    (question) => question.style.display === "none"
+                );
+
+                // If all child questions are hidden, hide the question group
+                if (!allHidden) {
+                    group.style.removeProperty("display")
                 } else {
-                    questionContainer.style.display = "none";
+                    group.style.display = "none";
                 }
             });
         }
 
         function checkQuestionVisibility(event) {
-            const formContext = getFormContext();
-            updateQuestionVisibility(formContext);
+            
+            updateQuestionVisibility();
+            updateQuestionGroupVisibility();
         }
     });
 
