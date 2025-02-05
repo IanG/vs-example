@@ -8,6 +8,7 @@ namespace VsExample.Domain.Entities.Questions;
 [JsonDerivedType(typeof(IntegerQuestion), "integer")]
 [JsonDerivedType(typeof(DateQuestion), "date")]
 [JsonDerivedType(typeof(BooleanQuestion), "boolean")]
+[JsonDerivedType(typeof(SingleChoiceQuestion), "single-choice")]
 [JsonDerivedType(typeof(MultiChoiceQuestion), "multi-choice")]
 [JsonDerivedType(typeof(FileUploadQuestion), "file-upload")]
 [JsonDerivedType(typeof(RatingQuestion), "rating")]
@@ -122,6 +123,20 @@ public class BooleanQuestion : QuestionBase
     public bool? DefaultValue { get; set; }
 }
 
+public class SingleChoiceQuestion : QuestionBase
+{
+    [JsonPropertyName("placeholder")]
+    [JsonPropertyOrder(9)]
+    public string? Placeholder { get; set; }
+ 
+    // TODO: Some other property to decide between list of radio ?
+    
+    [JsonPropertyName("options")]
+    [JsonPropertyOrder(10)]
+    public required List<Option> Options { get; set; } = [];
+    
+    
+}
 public class MultiChoiceQuestion : QuestionBase
 {
     [JsonPropertyName("options")]
