@@ -42,7 +42,7 @@ public abstract class QuestionBase
     [JsonPropertyOrder(7)]
     public string? CapturesField { get; set; }
     
-    [JsonPropertyName("visbilityRule")]
+    [JsonPropertyName("visibilityRule")]
     [JsonPropertyOrder(8)]
     
     public string? VisbilityRule { get; set; }
