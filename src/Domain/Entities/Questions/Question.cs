@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace VsExample.Domain.Entities.Questions;
@@ -128,15 +129,17 @@ public class SingleChoiceQuestion : QuestionBase
     [JsonPropertyName("placeholder")]
     [JsonPropertyOrder(9)]
     public string? Placeholder { get; set; }
- 
-    // TODO: Some other property to decide between list of radio ?
     
     [JsonPropertyName("options")]
     [JsonPropertyOrder(10)]
     public required List<Option> Options { get; set; } = [];
     
-    
+    [JsonPropertyName("selectionMode")]
+    [JsonConverter(typeof(SingleChoiceSelectionModeConverter))] // Apply custom converter
+    [JsonPropertyOrder(11)]
+    public SingleChoiceSelectionMode SelectionMode { get; set; } = SingleChoiceSelectionMode.Dropdown;
 }
+
 public class MultiChoiceQuestion : QuestionBase
 {
     [JsonPropertyName("options")]
@@ -195,4 +198,37 @@ public class Option
     [JsonPropertyName("value")]
     [JsonPropertyOrder(3)]
     public string? Value { get; set; }
+}
+
+public enum SingleChoiceSelectionMode
+{
+    
+    Dropdown = 1,
+    Radio = 2,
+}
+
+public class SingleChoiceSelectionModeConverter : JsonConverter<SingleChoiceSelectionMode>
+{
+    public override SingleChoiceSelectionMode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        string? value = reader.GetString();
+        return value switch
+        {
+            "dropdown" => SingleChoiceSelectionMode.Dropdown,
+            "radio" => SingleChoiceSelectionMode.Radio,
+            _ => throw new ArgumentException($"Unknown value for SelectionMode: {value}")
+        };
+    }
+
+    public override void Write(Utf8JsonWriter writer, SingleChoiceSelectionMode value, JsonSerializerOptions options)
+    {
+        string stringValue = value switch
+        {
+            SingleChoiceSelectionMode.Dropdown => "dropdown",
+            SingleChoiceSelectionMode.Radio => "radio",
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        writer.WriteStringValue(stringValue);
+    }
 }

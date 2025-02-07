@@ -22,13 +22,22 @@ public class QuestionSetRepository : IQuestionSetRepository
                     Questions = [
                         new StringQuestion() { Id = 1, Order = 1, CapturesField = "Name",Prompt = "What is your name?", Placeholder = "Name", MinLength = 1, MaxLength = 100, HelpText = "Tell us your name", Required = true, InvalidDataMessage = "Name required"},
                         new IntegerQuestion() { Id = 2, Order = 2, CapturesField = "FaveNumber", Prompt = "What is your fave number between 1 and 10?", Placeholder = "Fave Number", MinValue = 1, MaxValue = 10, DefaultValue = 1, HelpText = "Pick a number, depending how you answer could give you more questions to complete.", Required = true, InvalidDataMessage = "We need to know your fave number."},
-                        new SingleChoiceQuestion() { Id = 3, Order = 3, CapturesField = "FaveFruit", Prompt = "What is your fave fruit ?", Placeholder = "Select a fruit...", Required = true, HelpText = "Select from the list", InvalidDataMessage = "No fruit selected", Options = [
-                                new() { Id = 1, Label = "Green", Value = "Green" },
-                                new() { Id = 2, Label = "Blue", Value = "Blue" },
-                        ]},
-                        new StringQuestion() { Id = 4, Order = 4, CapturesField = "WhyYouLoveMumber7", Prompt = "Seems like you like the number 7, tell us why", Placeholder = "Why do you love number 7 ?", MinLength = 1, MaxLength = 7, HelpText = "Tell us why you love the number 7", Required = true, InvalidDataMessage = "Give us the reason", VisbilityRule = "FaveNumber == 7"},
-                        new StringQuestion() { Id = 5, Order = 5, CapturesField = "WhyYouLoveMumber7Additional", Prompt = "Tell us more about the number 7 !!!", Placeholder = "Big up the number 7", MinLength = 1, MaxLength = 2, HelpText = "Tell us more about your love of the number 7", Required = true, InvalidDataMessage = "Give us the reason", VisbilityRule = "FaveNumber == '7'"},
-                        new StringQuestion() { Id = 6, Order = 6, CapturesField = "Number5Answer", Prompt = "Seems like you prefer the number 5 - tell us why", Placeholder = "Explain why you prefer the number 5", MinLength = 1, MaxLength = 2, HelpText = "Ok, so you prefer number 5 to number 7 - tell us why", Required = true, InvalidDataMessage = "Please complete this field", VisbilityRule = "FaveNumber == '5'"}
+                        new SingleChoiceQuestion() { Id = 3, Order = 3, CapturesField = "FaveFruit", Prompt = "What is your fave fruit ?", Placeholder = "Select a fruit...", Required = true, HelpText = "Select a fruite from the list", InvalidDataMessage = "No fruit selected", Options = [
+                                new() { Id = 1, Label = "🍎 Apple", Value = "Apple" },
+                                new() { Id = 2, Label = "🍑 Orange", Value = "Orange" },
+                                new() { Id = 3, Label = "🍌 Banana", Value = "Banana" },
+                                new() { Id = 4, Label = "🍇 Grapes", Value = "Grapes" },
+                        ], SelectionMode = SingleChoiceSelectionMode.Dropdown},
+                        new SingleChoiceQuestion() { Id = 4, Order = 4, CapturesField = "FaveShape", Prompt = "What is your fave shape ?", Placeholder = "Select a shape...", Required = true, HelpText = "Select a shape from the list", InvalidDataMessage = "No shape selected", Options = [
+                            new() { Id = 1, Label = "🔺 Triangle", Value = "Triangle" },
+                            new() { Id = 2, Label = "🟩 Square", Value = "Square" },
+                            new() { Id = 3, Label = "🟠 Circle", Value = "Circle" },
+                            new() { Id = 4, Label = "🔷 Diamond", Value = "Diamond" },
+                        ], SelectionMode = SingleChoiceSelectionMode.Radio},
+                        new StringQuestion() { Id = 5, Order = 5, CapturesField = "GrapesReason",Prompt = "Tell us why you like 🍇 grapes so much?", Placeholder = "Explain why you like grapes", MinLength = 1, MaxLength = 100, HelpText = "Give us some more information about your love of grapes", Required = true, InvalidDataMessage = "Please provide the reason why you love grapes", VisbilityRule = "FaveFruit == 'Grapes'"},
+                        new StringQuestion() { Id = 6, Order = 6, CapturesField = "WhyYouLoveMumber7", Prompt = "Seems like you like the number 7, tell us why", Placeholder = "Why do you love number 7 ?", MinLength = 1, MaxLength = 7, HelpText = "Tell us why you love the number 7", Required = true, InvalidDataMessage = "Give us the reason", VisbilityRule = "FaveNumber == 7"},
+                        new StringQuestion() { Id = 7, Order = 7, CapturesField = "WhyYouLoveMumber7Additional", Prompt = "Tell us more about the number 7 !!!", Placeholder = "Big up the number 7", MinLength = 1, MaxLength = 2, HelpText = "Tell us more about your love of the number 7", Required = true, InvalidDataMessage = "Give us the reason", VisbilityRule = "FaveNumber == '7'"},
+                        new StringQuestion() { Id = 8, Order = 8, CapturesField = "Number5Answer", Prompt = "Seems like you prefer the number 5 - tell us why", Placeholder = "Explain why you prefer the number 5", MinLength = 1, MaxLength = 2, HelpText = "Ok, so you prefer number 5 to number 7 - tell us why", Required = true, InvalidDataMessage = "Please complete this field", VisbilityRule = "FaveNumber == '5'"}
                     ]
               },
               new()

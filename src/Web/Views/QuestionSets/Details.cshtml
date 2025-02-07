@@ -113,24 +113,67 @@
 
                                                 break;
                                                 
-                                            case SingleChoiceQuestion singleChoiceQuestion:
-                                                <select class="form-select"
-                                                        id="question-@singleChoiceQuestion.Id"
-                                                        name="@singleChoiceQuestion.CapturesField"
-                                                        aria-labelledby="question-@singleChoiceQuestion.Id"
-                                                        aria-describedby="question-@singleChoiceQuestion.Id-help"
-                                                        data-captures-field="@singleChoiceQuestion.CapturesField"
-                                                        required = "@singleChoiceQuestion.Required">
-
-                                                    <option value="" disabled selected hidden>@singleChoiceQuestion.Placeholder</option>
-                                                    @foreach (var option in singleChoiceQuestion.Options)
-                                                    {
-                                                        <option value="@option.Value">@option.Label</option>
-                                                    }
-                                                </select>
-                                                break;
+                                            @* case SingleChoiceQuestion singleChoiceQuestion: *@
+                                            @*     <select class="form-select" *@
+                                            @*             id="question-@singleChoiceQuestion.Id" *@
+                                            @*             name="@singleChoiceQuestion.CapturesField" *@
+                                            @*             aria-labelledby="question-@singleChoiceQuestion.Id" *@
+                                            @*             aria-describedby="question-@singleChoiceQuestion.Id-help" *@
+                                            @*             data-captures-field="@singleChoiceQuestion.CapturesField" *@
+                                            @*             required = "@singleChoiceQuestion.Required"> *@
+                                            @* *@
+                                            @*         <option value="" disabled selected hidden>@singleChoiceQuestion.Placeholder</option> *@
+                                            @*         @foreach (var option in singleChoiceQuestion.Options) *@
+                                            @*         { *@
+                                            @*             <option value="@option.Value">@option.Label</option> *@
+                                            @*         } *@
+                                            @*     </select> *@
+                                            @*     break; *@
                                                          
+                                            case SingleChoiceQuestion singleChoiceQuestion:
+                                                @switch(singleChoiceQuestion.SelectionMode)
+                                                {
+                                                    case SingleChoiceSelectionMode.Radio:
+                                                        @* Render as radio buttons *@
+                                                        @foreach (var option in singleChoiceQuestion.Options)
+                                                        {
+                                                            <div class="form-check">
+                                                                <input type="radio"
+                                                                       class="form-check-input"
+                                                                       id="question-@singleChoiceQuestion.Id-@option.Value"
+                                                                       name="@singleChoiceQuestion.CapturesField"
+                                                                       value="@option.Value"
+                                                                       aria-labelledby="question-@singleChoiceQuestion.Id"
+                                                                       aria-describedby="question-@singleChoiceQuestion.Id-help"
+                                                                       required="@singleChoiceQuestion.Required">
+                                                                <label class="form-check-label" for="question-@singleChoiceQuestion.Id-@option.Value">
+                                                                    @option.Label
+                                                                </label>
+                                                            </div>
+                                                        }
+                                                        break;
 
+                                                    case SingleChoiceSelectionMode.Dropdown:
+                                                        @* Render as a select dropdown *@
+                                                        <select class="form-select"
+                                                                id="question-@singleChoiceQuestion.Id"
+                                                                name="@singleChoiceQuestion.CapturesField"
+                                                                aria-labelledby="question-@singleChoiceQuestion.Id"
+                                                                aria-describedby="question-@singleChoiceQuestion.Id-help"
+                                                                data-captures-field="@singleChoiceQuestion.CapturesField"
+                                                                required = "@singleChoiceQuestion.Required">
+                                                    
+                                                            <option value="" disabled selected hidden>@singleChoiceQuestion.Placeholder</option>
+                                                            @foreach (var option in singleChoiceQuestion.Options)
+                                                            {
+                                                                <option value="@option.Value">@option.Label</option>
+                                                            }
+                                                        </select>
+                                                        break;
+                                                }
+
+                                                break;
+                                                
                                             case MultiChoiceQuestion multiChoiceQuestion:
                                                 @foreach (var option in multiChoiceQuestion.Options)
                                                 {
@@ -226,37 +269,56 @@
         // Add an event listener that checks the validity of child inputs.
 
         form.addEventListener("blur", function (event) {
-            if (event.target.matches("input.form-control, select.form-select"))
+            if (event.target.matches("input.form-control, select.form-select, input.form-check-input"))
             {
-                console.log(`Checking validity of form element '${event.target.id}' name '${event.target.name}' type '${event.target.type}' captures field '${event.target.dataset.capturesField}'`);
-                if (event.target.checkValidity())
-                {
-                    event.target.classList.remove("is-invalid");
-                    event.target.classList.add("is-valid");
-                }
-                else
-                {
-                    event.target.classList.remove("is-valid");
-                    event.target.classList.add("is-invalid");
-                }
+                validateFormElement(event.target);
             }
         }, true);
 
+        /**
+         * Validates a form element and applies Bootstrap validation classes
+         * @@param {HTMLInputElement | HTMLSelectElement} element - The form element to validate.
+         */
 
-        const formInputs = form.querySelectorAll("input.form-control");
+        function validateFormElement(element) {
+            if (!element) return false;
+
+            const { id, name, type, dataset } = element;
+            const isValid = type === "select-one" ? element.value !== "" : element.checkValidity();
+
+            console.log(`Checking validity of form element '${id}' name '${name}' type '${type}' captures field '${dataset?.capturesField || "N/A"}' isValid ${isValid}`);
+
+            element.classList.toggle("is-valid", isValid);
+            element.classList.toggle("is-invalid", !isValid);
+
+            return isValid;
+        }
+
+        /**
+         * Resets a form element back to its default state
+         * @@param {HTMLInputElement | HTMLSelectElement} element - The form element to validate.
+         */
+        
+        function resetFormElement(element)
+        {
+            if (!element) return;
+            
+            const { id, name, type, dataset } = element;
+
+            console.log(`Resetting form element '${id}' name '${name}' type '${type}' captures field '${dataset.capturesField}'`);
+            
+            if (type === "select-one") {
+                element.selectedIndex = -1;
+            } else {
+                element.value = "";
+            }
+            
+            element.classList.remove("is-valid", "is-invalid");
+        }
+
+        const formInputs = form.querySelectorAll("input.form-control, select.form-select");
 
         formInputs.forEach(input => {
-
-            // Make sure all our form inputs track their valid/invalid state
-            /* input.addEventListener("blur", function () {
-                if (input.checkValidity()) {
-                    input.classList.remove("is-invalid");
-                    input.classList.add("is-valid");
-                } else {
-                    input.classList.remove("is-valid");
-                    input.classList.add("is-invalid");
-                }
-            });*/
 
             // When an input loses focus check the state of the question group
             input.addEventListener("blur", function (event) {
@@ -310,15 +372,11 @@
 
             // Validate each input
             formInputs.forEach(input => {
-                if (!input.checkValidity()) {
+                
+                if (!validateFormElement(input)) {
                     isFormValid = false;
-                    input.classList.add("is-invalid");
-                    input.classList.remove("is-valid");
-                } else {
-                    input.classList.remove("is-invalid");
-                    input.classList.add("is-valid");
                 }
-
+                
                 const formContext = getFormContext();
                 updateQuestionVisibility(formContext);
             });
@@ -335,6 +393,10 @@
                     firstInvalidInput.scrollIntoView({ behavior: "smooth" });
                 }
             }
+            else
+            {
+                console.log("Form is valid");
+            }
         });
 
         // Form reset
@@ -342,25 +404,8 @@
             // Re-evaluate visible questions
             checkQuestionVisibility();
             
-            // Remove validation classes from inputs
-            //formInputs.forEach(input => {
-            //    input.value = "";
-            //    input.classList.remove("is-valid", "is-invalid");
-            //});
-
-            form.querySelectorAll("input.form-control, select.form-select").forEach(element => {
-                
-                console.log(`Resetting form element '${element.id}' name '${element.name}' type '${element.type}' captures field '${element.dataset.capturesField}'`);
-                
-                // Reset value and remove validation classes
-                if (element.tagName === "SELECT") {
-                    element.selectedIndex = -1; // Deselect any option, reset to placeholder
-                } else {
-                    element.value = ""; // Clear input value
-                }
-
-                // Remove validation classes
-                element.classList.remove("is-valid", "is-invalid");
+            formInputs.forEach(element => {
+                resetFormElement(element);
             });
         });
 
