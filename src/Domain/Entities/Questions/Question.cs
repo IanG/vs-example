@@ -17,59 +17,58 @@ public abstract class QuestionBase
 {
     [JsonPropertyName("id")]
     [JsonPropertyOrder(1)]
-    public required int Id { get; set; }
+    public required int Id { get; init; }
     
     [JsonPropertyName("order")]
     [JsonPropertyOrder(2)]
-    public required int Order { get; set; }
+    public required int Order { get; init; }
     
     [JsonPropertyName("prompt")]
     [JsonPropertyOrder(3)]
-    public required string Prompt { get; set; } = string.Empty;
+    public required string Prompt { get; init; } = string.Empty;
     
     [JsonPropertyName("helpText")]
     [JsonPropertyOrder(4)]
-    public string? HelpText { get; set; } = string.Empty;
+    public string? HelpText { get; init; } = string.Empty;
     
     [JsonPropertyName("required")]
     [JsonPropertyOrder(5)]
-    public required bool Required { get; set; }
+    public required bool Required { get; init; }
     
     [JsonPropertyName("invalidDataMessage")]
     [JsonPropertyOrder(6)]
-    public string? InvalidDataMessage { get; set; }
+    public string? InvalidDataMessage { get; init; }
     
     [JsonPropertyName("capturesField")]
     [JsonPropertyOrder(7)]
-    public string? CapturesField { get; set; }
+    public string? CapturesField { get; init; }
     
     [JsonPropertyName("visibilityRule")]
     [JsonPropertyOrder(8)]
-    
-    public string? VisbilityRule { get; set; }
+    public string? VisibilityRule { get; init; }
 }
 
 public class StringQuestion : QuestionBase
 {
     [JsonPropertyName("placeholder")]
     [JsonPropertyOrder(9)]
-    public string? Placeholder { get; set; }
+    public string? Placeholder { get; init; }
     
     [JsonPropertyName("minLength")]
     [JsonPropertyOrder(10)]
-    public required int MinLength { get; set; }
+    public required int MinLength { get; init; }
     
     [JsonPropertyName("maxLength")]
     [JsonPropertyOrder(11)]
-    public required int MaxLength { get; set; }
+    public required int MaxLength { get; init; }
     
     [JsonPropertyName("defaultValue")]
     [JsonPropertyOrder(12)]
-    public string? DefaultValue { get; set; } = string.Empty;
+    public string? DefaultValue { get; init; } = string.Empty;
     
     [JsonPropertyName("pattern")]
     [JsonPropertyOrder(13)]
-    public string? Pattern { get; set; }
+    public string? Pattern { get; init; }
 }
 
 public class TextQuestion : QuestionBase
@@ -83,15 +82,15 @@ public class IntegerQuestion : QuestionBase
 {
     [JsonPropertyName("placeholder")]
     [JsonPropertyOrder(10)]
-    public string? Placeholder { get; set; }
+    public string? Placeholder { get; init; }
     
     [JsonPropertyName("minValue")]
     [JsonPropertyOrder(11)]
-    public required int MinValue { get; set; }
+    public required int MinValue { get; init; }
     
     [JsonPropertyName("maxValue")]
     [JsonPropertyOrder(12)]
-    public required int MaxValue { get; set; }
+    public required int MaxValue { get; init; }
     
     [JsonPropertyName("defaultValue")]
     [JsonPropertyOrder(13)]
@@ -102,15 +101,15 @@ public class DateQuestion : QuestionBase
 {
     [JsonPropertyName("minDate")]
     [JsonPropertyOrder(9)]
-    public DateTime? MinDate { get; set; }
+    public DateTime? MinDate { get; init; }
     
     [JsonPropertyName("maxDate")]
     [JsonPropertyOrder(10)]
-    public DateTime? MaxDate { get; set; }
+    public DateTime? MaxDate { get; init; }
     
     [JsonPropertyName("mustBeInTheFuture")]
     [JsonPropertyOrder(11)]
-    public bool? MustBeInFuture { get; set; }
+    public bool? MustBeInFuture { get; init; }
     
     [JsonPropertyName("mustBeInThePast")]
     [JsonPropertyOrder(12)]
@@ -121,83 +120,83 @@ public class BooleanQuestion : QuestionBase
 {
     [JsonPropertyName("defaultValue")]
     [JsonPropertyOrder(9)]
-    public bool? DefaultValue { get; set; }
+    public bool? DefaultValue { get; init; }
 }
 
 public class SingleChoiceQuestion : QuestionBase
 {
     [JsonPropertyName("placeholder")]
     [JsonPropertyOrder(9)]
-    public string? Placeholder { get; set; }
+    public string? Placeholder { get; init; }
     
     [JsonPropertyName("options")]
     [JsonPropertyOrder(10)]
-    public required List<Option> Options { get; set; } = [];
+    public required List<Option> Options { get; init; } = [];
     
     [JsonPropertyName("selectionMode")]
     [JsonConverter(typeof(SingleChoiceSelectionModeConverter))] // Apply custom converter
     [JsonPropertyOrder(11)]
-    public SingleChoiceSelectionMode SelectionMode { get; set; } = SingleChoiceSelectionMode.Dropdown;
+    public SingleChoiceSelectionMode SelectionMode { get; init; } = SingleChoiceSelectionMode.Dropdown;
 }
 
 public class MultiChoiceQuestion : QuestionBase
 {
     [JsonPropertyName("options")]
     [JsonPropertyOrder(9)]
-    public required List<Option> Options { get; set; } = [];
+    public required List<Option> Options { get; init; } = [];
     
     [JsonPropertyName("allowMultipleSelections")]
     [JsonPropertyOrder(10)]
-    public bool AllowMultipleSelections { get; set; } = false;
+    public bool AllowMultipleSelections { get; init; } = false;
 }
 
 public class FileUploadQuestion : QuestionBase
 {
     [JsonPropertyName("allowedFileTypes")]
     [JsonPropertyOrder(9)]
-    public List<string> AllowedFileTypes { get; set; } = [];
+    public List<string> AllowedFileTypes { get; init; } = [];
 
     [JsonPropertyName("maxFileSizeMb")]
     [JsonPropertyOrder(10)]
-    public int? MaxFileSizeMb { get; set; }
+    public int? MaxFileSizeMb { get; init; }
 
     [JsonPropertyName("allowMultiple")]
     [JsonPropertyOrder(11)]
-    public bool AllowMultiple { get; set; }
+    public bool AllowMultiple { get; init; }
 }
 
 public class RatingQuestion : QuestionBase
 {
     [JsonPropertyName("minValue")]
     [JsonPropertyOrder(9)]
-    public int MinValue { get; set; }
+    public int MinValue { get; init; }
 
     [JsonPropertyName("maxValue")]
     [JsonPropertyOrder(10)]
-    public int MaxValue { get; set; }
+    public int MaxValue { get; init; }
 
     [JsonPropertyName("stepValue")]
     [JsonPropertyOrder(11)]
-    public int StepValue { get; set; } = 1; 
+    public int StepValue { get; init; } = 1; 
 
     [JsonPropertyName("labels")]
     [JsonPropertyOrder(12)]
-    public Dictionary<int, string>? Labels { get; set; } 
+    public Dictionary<int, string>? Labels { get; init; } 
 }
 
 public class Option
 {
     [JsonPropertyName("id")]
     [JsonPropertyOrder(1)]
-    public int Id { get; set; }
+    public int Id { get; init; }
     
     [JsonPropertyName("label")]
     [JsonPropertyOrder(2)]
-    public string Label { get; set; } = string.Empty;
+    public required string Label { get; init; } = string.Empty;
     
     [JsonPropertyName("value")]
     [JsonPropertyOrder(3)]
-    public string? Value { get; set; }
+    public required string Value { get; init; }
 }
 
 public enum SingleChoiceSelectionMode

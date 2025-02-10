@@ -1,3 +1,4 @@
+@using Microsoft.CodeAnalysis.CSharp.Syntax
 @using VsExample.Domain.Entities.Questions
 @model VSExample.Web.ViewModels.QuestionSets.QuestionSetDetailsViewModel
 
@@ -8,15 +9,16 @@
     int GetQuestionsInGroup(int id) => Model.QuestionSet.QuestionGroups.FirstOrDefault(questionGroup => questionGroup.Id == id)?.Questions.Count ?? 0;
 }
 
+@{ Dictionary<string, List<string>> dataPoints = Model.DataPoints ?? new Dictionary<string, List<string>>(); }
 
 <div class="container">
     <div id="questionset-@Model.QuestionSet.Id" class="question-set">
         <h1>@Model.QuestionSet.Name</h1>
         <p id="form-description" class="form-label">@Model.QuestionSet.Description. Please complete the following @GetTotalQuestionCount() questions arranged into @GetQuestionGroupCount() groups.</p>
 
-        <form asp-action="SubmitAnswers" id="form" enctype="multipart/form-data" method="post" class="needs-validation" aria-describedby="form-description" novalidate>
-            <input type="hidden" name="QuestionSetId" value="@Model.QuestionSet.Id"/>
-            <input type="hidden" name="QuestionSetVersion" value="@Model.QuestionSet.Version"/>
+        <form asp-action="Submit" id="form" enctype="multipart/form-data" method="post" class="needs-validation" aria-describedby="form-description" novalidate>
+            <input type="hidden" name="__QuestionSetId" value="@Model.QuestionSet.Id"/>
+            <input type="hidden" name="__QuestionSetVersion" value="@Model.QuestionSet.Version"/>
             
             @* Output each group *@
             
@@ -41,10 +43,12 @@
                             
                             @foreach (var question in group.Questions.OrderBy(q => q.Order))
                             {
+                                List<string> dataPointValues = dataPoints.GetValueOrDefault(question.CapturesField) ?? new();
+
                                 <div id="question-group-@group.Id-question-@question.Id" class="question"
-                                     @(string.IsNullOrEmpty(question.VisbilityRule) 
+                                     @(string.IsNullOrEmpty(question.VisibilityRule) 
                                          ? ""
-                                         : @Html.Raw($"data-visibility-rule=\"{question.VisbilityRule}\""))
+                                         : @Html.Raw($"data-visibility-rule=\"{question.VisibilityRule}\""))
                                      >
                                      
                                     <div class="mb-3">
@@ -65,6 +69,7 @@
                                                        required="@stringQuestion.Required"
                                                        placeholder="@stringQuestion.Placeholder"
                                                        data-captures-field="@stringQuestion.CapturesField"
+                                                       value="@(dataPointValues.FirstOrDefault() ?? "")"
                                                        @* @if (!string.IsNullOrEmpty(stringQuestion.VisbilityRule)) *@
                                                        @* { *@
                                                        @*     @Html.Raw($"data-visibility-rule=\"{stringQuestion.VisbilityRule}\"") *@
@@ -82,6 +87,7 @@
                                                        required="@integerQuestion.Required"
                                                        placeholder="@integerQuestion.Placeholder"
                                                        data-captures-field="@integerQuestion.CapturesField"
+                                                       value="@dataPointValues.First()"
                                                        @* @if (!string.IsNullOrEmpty(integerQuestion.VisbilityRule)) *@
                                                        @* { *@
                                                        @*     @($"data-visibility-rule=\"{integerQuestion.VisbilityRule}\"") *@
@@ -101,9 +107,9 @@
                                                                aria-description="@option.Key"
                                                                required="@ratingQuestion.Required"
                                                                data-captures-field="@ratingQuestion.CapturesField"
-                                                               @if (!string.IsNullOrEmpty(ratingQuestion.VisbilityRule))
+                                                               @if (!string.IsNullOrEmpty(ratingQuestion.VisibilityRule))
                                                                {
-                                                                   @($"data-visibility-rule=\"{ratingQuestion.VisbilityRule}\"")
+                                                                   @($"data-visibility-rule=\"{ratingQuestion.VisibilityRule}\"")
                                                                }/>
                                                         <label class="form-check-label" for="question-@question.Id-option-@option.Value">
                                                             @option.Value
@@ -145,7 +151,9 @@
                                                                        value="@option.Value"
                                                                        aria-labelledby="question-@singleChoiceQuestion.Id"
                                                                        aria-describedby="question-@singleChoiceQuestion.Id-help"
-                                                                       required="@singleChoiceQuestion.Required">
+                                                                       data-captures-field="@singleChoiceQuestion.CapturesField"
+                                                                       required="@singleChoiceQuestion.Required"
+                                                                       @(dataPoints.GetValueOrDefault(singleChoiceQuestion.CapturesField)?.Contains(option.Value) == true ? "checked" : "")>
                                                                 <label class="form-check-label" for="question-@singleChoiceQuestion.Id-@option.Value">
                                                                     @option.Label
                                                                 </label>
@@ -161,12 +169,17 @@
                                                                 aria-labelledby="question-@singleChoiceQuestion.Id"
                                                                 aria-describedby="question-@singleChoiceQuestion.Id-help"
                                                                 data-captures-field="@singleChoiceQuestion.CapturesField"
-                                                                required = "@singleChoiceQuestion.Required">
+                                                                required = "@singleChoiceQuestion.Required"
+                                                                >
                                                     
                                                             <option value="" disabled selected hidden>@singleChoiceQuestion.Placeholder</option>
                                                             @foreach (var option in singleChoiceQuestion.Options)
                                                             {
-                                                                <option value="@option.Value">@option.Label</option>
+                                                                bool selectedAttribute = dataPointValues.Contains(option.Value);
+                                                                
+                                                                <option value="@option.Value" selected="@selectedAttribute">
+                                                                    @option.Label
+                                                                </option>
                                                             }
                                                         </select>
                                                         break;
@@ -185,9 +198,9 @@
                                                                value="@option.Value"
                                                                aria-description="@option.Label"
                                                                data-captures-field="@multiChoiceQuestion.CapturesField"
-                                                               @if (!string.IsNullOrEmpty(multiChoiceQuestion.VisbilityRule))
+                                                               @if (!string.IsNullOrEmpty(multiChoiceQuestion.VisibilityRule))
                                                                {
-                                                                   @($"data-visibility-rule=\"{multiChoiceQuestion.VisbilityRule}\"")
+                                                                   @($"data-visibility-rule=\"{multiChoiceQuestion.VisibilityRule}\"")
                                                                }/>
                                                         <label class="form-check-label" for="question-option-@option.Id">
                                                             @option.Label
@@ -204,9 +217,9 @@
                                                        name="@dateQuestion.CapturesField"
                                                        required="@dateQuestion.Required"
                                                        data-captures-field="@dateQuestion.CapturesField"
-                                                       @if (!string.IsNullOrEmpty(dateQuestion.VisbilityRule))
+                                                       @if (!string.IsNullOrEmpty(dateQuestion.VisibilityRule))
                                                        {
-                                                           @($"data-visibility-rule=\"{dateQuestion.VisbilityRule}\"")
+                                                           @($"data-visibility-rule=\"{dateQuestion.VisibilityRule}\"")
                                                        }/>
                                                 break;
 
@@ -218,9 +231,9 @@
                                                        required="@fileUploadQuestion.Required"
                                                        accept="@string.Join(",", fileUploadQuestion.AllowedFileTypes)"
                                                        data-captures-field="@fileUploadQuestion.CapturesField"
-                                                       @if (!string.IsNullOrEmpty(fileUploadQuestion.VisbilityRule))
+                                                       @if (!string.IsNullOrEmpty(fileUploadQuestion.VisibilityRule))
                                                        {
-                                                           @($"data-visibility-rule=\"{fileUploadQuestion.VisbilityRule}\"")
+                                                           @($"data-visibility-rule=\"{fileUploadQuestion.VisibilityRule}\"")
                                                        }>
                                                 break;
 
@@ -259,8 +272,6 @@
     @Html.ActionLink("Back to question set List", "Index", "QuestionSets")
 </div>
 
-
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
@@ -283,6 +294,7 @@
         function validateFormElement(element) {
             if (!element) return false;
 
+            /*
             const { id, name, type, dataset } = element;
             const isValid = type === "select-one" ? element.value !== "" : element.checkValidity();
 
@@ -290,7 +302,37 @@
 
             element.classList.toggle("is-valid", isValid);
             element.classList.toggle("is-invalid", !isValid);
+            */
+            if (!element) return false;
 
+            const { id, name, type, dataset } = element;
+            let isValid = element.checkValidity();
+
+            if (type === "select-one") {
+                isValid = element.value !== "";
+            } else if (type === "radio") {
+                // Validate radio button group by checking if any in the group are checked
+                const radioGroup = document.querySelectorAll(`input[name="${name}"]`);
+                isValid = [...radioGroup].some(radio => radio.checked);
+
+                // Find the closest `.invalid-feedback` div and toggle visibility
+                const feedback = element.closest('.mb-3')?.querySelector('.invalid-feedback');
+                if (feedback) {
+                    feedback.style.display = isValid ? 'none' : 'block';
+                }
+
+                // Apply validation styles to all radios in the group
+                radioGroup.forEach(radio => {
+                    radio.classList.toggle("is-valid", isValid);
+                    radio.classList.toggle("is-invalid", !isValid);
+                });
+            }
+
+            console.log(`Checking validity of form element '${id}' name '${name}' type '${type}' captures field '${dataset?.capturesField || "N/A"}' isValid ${isValid}`);
+
+            element.classList.toggle("is-valid", isValid);
+            element.classList.toggle("is-invalid", !isValid);
+            
             return isValid;
         }
 
@@ -298,25 +340,25 @@
          * Resets a form element back to its default state
          * @@param {HTMLInputElement | HTMLSelectElement} element - The form element to validate.
          */
-        
+
         function resetFormElement(element)
         {
             if (!element) return;
-            
+
             const { id, name, type, dataset } = element;
 
             console.log(`Resetting form element '${id}' name '${name}' type '${type}' captures field '${dataset.capturesField}'`);
-            
+
             if (type === "select-one") {
                 element.selectedIndex = -1;
             } else {
                 element.value = "";
             }
-            
+
             element.classList.remove("is-valid", "is-invalid");
         }
 
-        const formInputs = form.querySelectorAll("input.form-control, select.form-select");
+        const formInputs = form.querySelectorAll("input.form-control, select.form-select, input.form-check-input");
 
         formInputs.forEach(input => {
 
@@ -409,7 +451,11 @@
             });
         });
 
-        // Builds the context object from form inputs for rule evaluation
+        /**
+         * Builds the context object from form inputs for rule evaluation
+         * @@returns an object populated with all data point values 
+         */
+        
         function getFormContext()
         {
             const form = document.getElementById("form");
@@ -459,7 +505,7 @@
             return formContext;
         }
 
-        // Evaulates a visibility rule from the forms contextual data
+        // Evaluates a visibility rule from the forms contextual data
         function evaluateVisibilityRule(rule, context) {
             try {
                 // Use Function constructor to evaluate the rule in the context

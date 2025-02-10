@@ -32,9 +32,15 @@
     {
         <tr>
             <td>
-                <a href="@Url.Action("Details", "QuestionSets", new { id = questionSet.Id })">
-                    @questionSet.Id
-                </a>
+                @* <a href="@Url.Action("Details", "QuestionSets", new { questionSetId = questionSet.Id })"> *@
+                @*     @questionSet.Id *@
+                @* </a> *@
+                <form asp-controller="QuestionSets" asp-action="Details" method="post">
+                    <input type="hidden" name="questionSetId" value="@questionSet.Id" />
+                    <button type="submit" class="btn btn-link p-0 border-0" style="text-decoration: none;">
+                        @questionSet.Id
+                    </button>
+                </form>
             </td>
             <td>@questionSet.Name</td>
             <td>@questionSet.Description</td>

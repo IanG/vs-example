@@ -5,4 +5,6 @@ namespace VSExample.Web.ViewModels.QuestionSets;
 public class QuestionSetDetailsViewModel
 {
     public required QuestionSet QuestionSet { get; init; }
+
+    public Dictionary<string, List<string>>? DataPoints { get; init; } = [];
 }
