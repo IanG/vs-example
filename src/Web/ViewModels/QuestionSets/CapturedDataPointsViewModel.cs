@@ -11,6 +11,7 @@ public class CapturedDataPointsViewModel
 
     public class FileContent
     {
+        public required string Name { get; init; }
         public required string FileName { get; init; }
         public required string ContentType { get; init; }
         public required byte[] FileData { get; init; }

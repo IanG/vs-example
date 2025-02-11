@@ -53,7 +53,7 @@
                                      
                                     <div class="mb-3">
                                         <label for="question-@question.Id" class="form-label"><strong>@question.Id. @question.Prompt</strong></label>
-                                        <div id="question-@question.Id-help" class="form-text">@question.HelpText</div>
+                                        <div id="question-@question.Id-help" class="form-text">@Html.Raw(question.HelpText)</div>
                                         @switch (question)
                                         {
                                             case StringQuestion stringQuestion:
@@ -87,7 +87,7 @@
                                                        required="@integerQuestion.Required"
                                                        placeholder="@integerQuestion.Placeholder"
                                                        data-captures-field="@integerQuestion.CapturesField"
-                                                       value="@dataPointValues.First()"
+                                                       value="@(dataPointValues.FirstOrDefault() ?? "")"
                                                        @* @if (!string.IsNullOrEmpty(integerQuestion.VisbilityRule)) *@
                                                        @* { *@
                                                        @*     @($"data-visibility-rule=\"{integerQuestion.VisbilityRule}\"") *@
@@ -217,6 +217,7 @@
                                                        name="@dateQuestion.CapturesField"
                                                        required="@dateQuestion.Required"
                                                        data-captures-field="@dateQuestion.CapturesField"
+                                                       value="@(dataPointValues.FirstOrDefault() ?? "")"
                                                        @if (!string.IsNullOrEmpty(dateQuestion.VisibilityRule))
                                                        {
                                                            @($"data-visibility-rule=\"{dateQuestion.VisibilityRule}\"")

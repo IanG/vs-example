@@ -93,6 +93,7 @@ public class QuestionSetsController: Controller
                 
                 files.Add(new CapturedDataPointsViewModel.FileContent
                 {
+                    Name = file.Name,
                     FileName = file.FileName,
                     ContentType = file.ContentType,
                     FileData = memoryStream.ToArray() // Store file contents as byte array
